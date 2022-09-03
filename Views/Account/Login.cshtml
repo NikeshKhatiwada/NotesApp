@@ -1,0 +1,61 @@
+﻿@using NotesApp.ViewModels
+@model UserLoginModel
+@{
+    ViewData["Title"] = "Login Page";
+    Layout = null;
+}
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - NotesApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/NotesApp.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/showdown@2.0/dist/showdown.min.js"></script>
+</head>
+<div class="vh-100 d-flex justify-content-center align-items-center">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="border border-3 border-primary"></div>
+                <div class="card bg-white shadow-lg">
+                    <div class="card-body p-5">
+                        <form asp-controller="Account" asp-action="Login" method="post" class="mb-3 mt-md-4">
+                            <h2 class="fw-bold mb-2 text-uppercase ">NotesApp</h2>
+                            <p class=" mb-5">Please enter your login and password!</p>
+                            <div class="mb-3">
+                                <label asp-for="@Model.Email" class="form-label ">Email Address</label>
+                                @Html.TextBoxFor(m => m.Email, new {
+                                    placeholder = "Email", @class = "form-control"
+                                })
+                                @Html.ValidationMessageFor(m => m.Email)
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="@Model.Password" class="form-label ">Password</label>
+                                @Html.TextBoxFor(m => m.Password, new {
+                                    placeholder = "Password", @class = "form-control"
+                                })
+                                @Html.ValidationMessageFor(m => m.Password)
+                            </div>
+                            <p class="small"><a class="text-primary" href="forget-password.html">Forgot password?</a></p>
+                            <div class="d-grid">
+                                <button class="btn btn-outline-dark" type="submit">Login</button>
+                            </div>
+                        </form>
+                        <div>
+                            <p class="mb-0  text-center">
+                                Don't have an account? <a href="signup.html" class="text-primary fw-bold">
+                                    Sign
+                                    Up
+                                </a>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

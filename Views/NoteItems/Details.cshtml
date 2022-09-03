@@ -1,0 +1,99 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model NotesApp.Models.NoteItem
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<h4>NoteItem</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <h4>Title :</h4>
+        <p>@Model.Title</p>
+        <h4>Description :</h4>
+        <div id="description">
+            @Model.Description
+        </div>
+        <script>
+            var converter = new showdown.Converter(),
+                text = '@Model.Description',
+                html = converter.makeHtml(text);
+            document.getElementById('description').innerHTML = html;
+        </script>
+        @*<script>
+            const HTMLDecoderEncoder = require("html-encoder-decoder");
+
+            let decoded = decode(document.getElementById('description').innerText);
+            //document.getElementById('description').innerHTML = decoded;
+
+            console.log(HTMLDecoderEncoder.decode(encoded));
+            //let decode = require('html-entities-decoder')
+            //let input = document.getElementById('description').innerText;
+            //let output = decode(input);
+            //document.getElementById('description').innerHTML = output;
+        </script>*@
+        <p>
+            <span class="fw-bold">Created At :</span>
+            @Model.CreatedAt.ToString("F");
+        </p>
+        <p>
+            <span class="fw-bold">Updated At :</span>
+            @Model.UpdatedAt.ToString("F");
+        </p>
+        <a href="/NoteItems/Edit/@Model.Id" value="Edit Item" class="btn btn-primary">Edit Item</a>
+        <script>
+            function deleteConfirmation() {
+                var confirmResult = confirm("Do you really want to delete?")
+                if(confirmResult == true) {
+                    document.getElementById('deleteForm').submit();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        </script>
+        <button id="deleteButton" class="btn btn-danger" onclick="deleteConfirmation()">Delete</button>
+        <form id="deleteForm" method="post" action="/NoteItems/Delete/@Model.Id" hidden>
+            @Html.AntiForgeryToken()
+        </form>
+        @*<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+            Delete Item
+        </button>
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger">Delete Note</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure to delete note item?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+    </div>
+</div>
+
+<div>
+    <a href="/">Go Back</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

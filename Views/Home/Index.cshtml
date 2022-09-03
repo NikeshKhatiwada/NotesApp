@@ -1,0 +1,45 @@
+﻿@model IEnumerable<NotesApp.Models.NoteItem>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+<div class="page-content container note-has-grid">
+    <ul class="nav nav-pills p-3 bg-white mb-3 rounded-pill align-items-center span">
+        <li class="nav-item">
+            <form method="post" action="/Home/Search">
+                <div class="form-outline">
+                    <input type="search" id="query" name="query" class="form-control" placeholder="Type search query" aria-label="Search" />
+                </div>
+            </form>
+        </li>
+        <li class="nav-item ml-auto">
+            <a href="/NoteItems/Create" class="nav-link btn-primary rounded-pill d-flex align-items-center px-3" id="add-note">
+                <i class="icon-note m-1"></i><span class="d-none d-md-block font-14">Add Note</span>
+            </a>
+        </li>
+    </ul>
+    <div class="tab-content bg-transparent">
+        <div id="note-full-container" class="note-has-grid row">
+            @foreach(var Item in Model) {
+                <div class="col-md-4 single-note-item all-category" style="">
+                    <div class="card card-body">
+                        <h5 class="note-title text-truncate w-75 mb-0" data-noteheading="@Item.Title">
+                            <a class="text-decoration-none" href="/NoteItems/Details/@Item.Id">
+                                @Item.Title
+                            </a>
+                         </h5>
+                        <p class="note-date font-12 text-muted">@Item.UpdatedAt.ToString("dd-M-yyyy")</p>
+                        <div class="note-content">
+                            <p class="note-inner-content text-muted" data-notecontent="@Item.Description">@Item.Description</p>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="mr-1"><i class="fa fa-star favourite-note"></i></span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
