@@ -39,16 +39,15 @@
                                 })
                                 @Html.ValidationMessageFor(m => m.Password)
                             </div>
-                            <p class="small"><a class="text-primary" href="forget-password.html">Forgot password?</a></p>
+                            @*<p class="small"><a class="text-primary" href="forget-password.html">Forgot password?</a></p>*@
                             <div class="d-grid">
                                 <button class="btn btn-outline-dark" type="submit">Login</button>
                             </div>
                         </form>
                         <div>
                             <p class="mb-0  text-center">
-                                Don't have an account? <a href="signup.html" class="text-primary fw-bold">
-                                    Sign
-                                    Up
+                                Don't have an account? <a href="/Account/Register" class="text-primary fw-bold">
+                                    Register
                                 </a>
                             </p>
                         </div>

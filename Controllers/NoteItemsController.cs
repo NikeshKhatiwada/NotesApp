@@ -87,11 +87,10 @@ namespace NotesApp.Controllers
                     FileInfo fileInfo = new FileInfo(filePath);
                     var fileExtension = fileInfo.Extension;
                     fileName = fileName.Substring(0, fileName.IndexOf("."));
-                    fileName = fileName + "." + fileExtension;
+                    fileName = fileName + fileExtension;
                     if (fileInfo.Exists)
                     {
                         fileInfo.MoveTo(Path.Combine(uploadPath, fileName));
-                        noteItem.Image = Path.Combine(fileName, fileInfo.Extension);
                     }
                     noteItem.Image = fileName;
                 }
@@ -154,18 +153,20 @@ namespace NotesApp.Controllers
                         FileInfo fileInfo = new FileInfo(filePath);
                         var fileExtension = fileInfo.Extension;
                         fileName = fileName.Substring(0, fileName.IndexOf("."));
-                        fileName = fileName + "." + fileExtension;
+                        fileName = fileName + fileExtension;
                         if (fileInfo.Exists)
                         {
                             fileInfo.MoveTo(Path.Combine(uploadPath, fileName));
-                            noteItem.Image = Path.Combine(fileName, fileInfo.Extension);
                         }
-                        string deletePath = Path.Combine(".\\wwwroot", "Images");
-                        string fileDeletePath = Path.Combine(deletePath, noteItem.Image);
-                        FileInfo deleteFile = new FileInfo(fileDeletePath);
-                        if (deleteFile.Exists)
+                        if (noteItem.Image != null)
                         {
-                            deleteFile.Delete();
+                            string deletePath = Path.Combine(".\\wwwroot", "Images");
+                            string fileDeletePath = Path.Combine(deletePath, noteItem.Image);
+                            FileInfo deleteFile = new FileInfo(fileDeletePath);
+                            if (deleteFile.Exists)
+                            {
+                                deleteFile.Delete();
+                            }
                         }
                         noteItem.Image = fileName;
                     }
