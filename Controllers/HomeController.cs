@@ -1,4 +1,5 @@
-﻿using Markdig;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Markdig;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,12 +14,14 @@ namespace NotesApp.Controllers
         private readonly ILogger<HomeController> _logger;
         private ApplicationDbContext? Context { get; }
         private readonly UserManager<IdentityUser>? _userManager;
+        private readonly INotyfService _notyf;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext? applicationDbContext, UserManager<IdentityUser>? userManager)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext? applicationDbContext, UserManager<IdentityUser>? userManager, INotyfService notyf)
         {
             Context = applicationDbContext;
             _logger = logger;
             _userManager = userManager;
+            _notyf = notyf;
         }
 
         [HttpGet]

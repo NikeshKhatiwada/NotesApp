@@ -17,6 +17,13 @@
     <div class="col-md-12">
         <h4>Title :</h4>
         <p>@Model.Title</p>
+        @if (Model.Image != null)
+        {
+            <h4>Image :</h4>
+            <p>
+                <img src="/Images/@Model.Image" class="img-thumbnail" alt="Note @Model.Id Image" />
+            </p>
+        }
         <h4>Description :</h4>
         <div id="description">
             @Model.Description

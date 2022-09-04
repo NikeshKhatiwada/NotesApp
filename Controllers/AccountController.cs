@@ -98,5 +98,12 @@ namespace NotesApp.Controllers
             }
 			return View(userLoginModel);
 		}
+
+		[HttpPost, Authorize]
+		public async Task<IActionResult> Logout()
+		{
+			await loginManager.SignOutAsync();
+			return Redirect("/");
+		}
 	}
 }

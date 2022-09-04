@@ -10,13 +10,18 @@
 <hr />
 <div class="row">
     <div class="col-md-12">
-        <form method="post" action="/NoteItems/Create">
+        <form method="post" enctype="multipart/form-data" action="/NoteItems/Create">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="Image" class="form-label">Main Image</label>
+                <input asp-for="Image" class="form-control" name="Image" type="file" id="Image" accept=".jpg, .png">
+                <span asp-validation-for="Image" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
