@@ -30,6 +30,7 @@ namespace NotesApp.Controllers
         {
             string userId = _userManager.GetUserId(User);
             List<NoteItem> NoteItems = Context.NoteItem.Where(NoteItem => NoteItem.UserId == userId).ToList();
+            NoteItems = NoteItems.OrderByDescending(NoteItem => NoteItem.CreatedAt).ToList();
             foreach(var noteItem in NoteItems)
             {
                 if (noteItem.Title.Length > 16)
