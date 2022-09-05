@@ -35,9 +35,14 @@ namespace NotesApp.Controllers
                           Problem("Entity set 'ApplicationDbContext.NoteItem'  is null.");
         }
 
+        public System.Security.Claims.ClaimsPrincipal GetUser()
+        {
+            return User;
+        }
+
         // GET: NoteItems/Details/5
         [Authorize]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, System.Security.Claims.ClaimsPrincipal user)
         {
             if (id == null || _context.NoteItem == null)
             {
@@ -49,6 +54,11 @@ namespace NotesApp.Controllers
             if (noteItem == null)
             {
                 return NotFound();
+            }
+
+            if(!(noteItem.UserId.Equals(_userManager.GetUserId(User))))
+            {
+                return BadRequest();
             }
 
             //noteItem.Description = Markdown.ToHtml(noteItem.Description);
@@ -115,6 +125,11 @@ namespace NotesApp.Controllers
             if (noteItem == null)
             {
                 return NotFound();
+            }
+
+            if (!(noteItem.UserId.Equals(_userManager.GetUserId(User))))
+            {
+                return BadRequest();
             }
             return View(noteItem);
         }
@@ -204,6 +219,11 @@ namespace NotesApp.Controllers
             if (noteItem == null)
             {
                 return NotFound();
+            }
+
+            if (!(noteItem.UserId.Equals(_userManager.GetUserId(User))))
+            {
+                return BadRequest();
             }
             return View(noteItem);
         }

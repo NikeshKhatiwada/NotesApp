@@ -46,7 +46,9 @@ namespace NotesApp.Controllers
         [Authorize]
         public IActionResult Search(string query)
         {
-            List<NoteItem> NoteItems = Context.NoteItem.Where(NoteItem => NoteItem.Title.ToLower().Contains(query.ToLower()) || NoteItem.Description.ToLower().Contains(query.ToLower())).ToList();
+            string userId = _userManager.GetUserId(User);
+            List<NoteItem> NoteItems = Context.NoteItem.Where(NoteItem => NoteItem.UserId == userId).ToList();
+            NoteItems = NoteItems.Where(NoteItem => NoteItem.Title.ToLower().Contains(query.ToLower()) || NoteItem.Description.ToLower().Contains(query.ToLower())).ToList();
             foreach (var noteItem in NoteItems)
             {
                 if (noteItem.Title.Length > 16)
