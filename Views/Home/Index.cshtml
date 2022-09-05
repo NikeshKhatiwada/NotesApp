@@ -1,4 +1,7 @@
-﻿@model IEnumerable<NotesApp.Models.NoteItem>
+﻿@model PagedList.IPagedList<NotesApp.Models.NoteItem>
+@using PagedList;
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewData["Title"] = "Home Page";
@@ -48,3 +51,6 @@
         </div>
     </div>
 </div>
+@*Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page }))*@

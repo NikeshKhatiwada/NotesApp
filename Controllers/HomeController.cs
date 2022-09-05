@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NotesApp.Data;
 using NotesApp.Models;
+using PagedList;
 using System.Diagnostics;
 
 namespace NotesApp.Controllers
@@ -26,7 +27,7 @@ namespace NotesApp.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult Index()
+        public IActionResult Index(int? page)
         {
             string userId = _userManager.GetUserId(User);
             List<NoteItem> NoteItems = Context.NoteItem.Where(NoteItem => NoteItem.UserId == userId).ToList();
@@ -39,7 +40,9 @@ namespace NotesApp.Controllers
                 if (noteItem.Description.Length > 56)
                     noteItem.Description = noteItem.Description.Substring(0, 55);
             }
-            return View(NoteItems);
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+            return View(NoteItems.ToPagedList(pageNumber, pageSize));
         }
 
         [HttpPost]
