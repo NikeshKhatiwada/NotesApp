@@ -10,10 +10,10 @@ namespace NotesApp.Controllers
 {
 	public class AccountController : Controller
 	{
-		private readonly UserManager<IdentityUser> userManager;
-		private readonly SignInManager<IdentityUser> loginManager;
+		private readonly UserManager<NoteUser> userManager;
+		private readonly SignInManager<NoteUser> loginManager;
         private ApplicationDbContext? Context { get; }
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> loginManager, ApplicationDbContext context)
+        public AccountController(UserManager<NoteUser> userManager, SignInManager<NoteUser> loginManager, ApplicationDbContext context)
 		{
 			this.userManager = userManager;
 			this.loginManager = loginManager;
@@ -35,16 +35,13 @@ namespace NotesApp.Controllers
 				var user1 = await userManager.FindByEmailAsync(userRegistrationModel.Email);
 				if(user1 == null)
 				{
-					var user = new IdentityUser
+					var user = new NoteUser
 					{
 						UserName = userRegistrationModel.UserName,
-						NormalizedUserName = userRegistrationModel.UserName,
-						Email = userRegistrationModel.Email,
-						NormalizedEmail = userRegistrationModel.Email,
-						EmailConfirmed = true
+						Email = userRegistrationModel.Email
 					};
 
-					user.PasswordHash = BC.HashPassword(userRegistrationModel.Password);
+					user.Password = BC.HashPassword(userRegistrationModel.Password);
                     var result = await userManager.CreateAsync(user);
 					if(result.Succeeded)
 					{
@@ -87,14 +84,14 @@ namespace NotesApp.Controllers
 					ModelState.AddModelError("message", "Invalid input");
 					return View(userLoginModel);
 				}*/
-				bool verified = BC.Verify(userLoginModel.Password, user.PasswordHash);
+				bool verified = BC.Verify(userLoginModel.Password, user.Password);
 				/*var result = await loginManager.PasswordSignInAsync(user.UserName, userLoginModel.Password, true, true);
 				if(result.Succeeded)
 				{
 					await userManager.AddClaimAsync(user, new System.Security.Claims.Claim("UserRole", "Admin"));
 					return Redirect("/Home/Index");
 				}*/
-                var result = BC.Verify(userLoginModel.Password, user.PasswordHash);
+                var result = BC.Verify(userLoginModel.Password, user.Password);
                 if (result)
 				{
 					await loginManager.SignInAsync(user, true);
