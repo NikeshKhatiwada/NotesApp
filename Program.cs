@@ -1,11 +1,7 @@
 using AspNetCoreHero.ToastNotification;
 using AspNetCoreHero.ToastNotification.Extensions;
-using Humanizer;
-using MessagePack;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using NotesApp.Data;
 using NotesApp.Models;
 using System;
@@ -24,16 +20,29 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<DbContext, ApplicationDbContext>();
+
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(option =>
+{
+    option.ExpireTimeSpan = TimeSpan.FromHours(24);
+    option.LoginPath = "/Account/Login";
+    option.AccessDeniedPath = "/Account/Login";
+});
 
 builder.Services.AddSession(option =>
 {
     option.IdleTimeout = TimeSpan.FromHours(24);
+    option.Cookie.HttpOnly = true;
+    option.Cookie.IsEssential = true;
+
 });
 
 builder.Services.AddNotyf(config => { config.DurationInSeconds = 10; config.IsDismissable = true; config.Position = NotyfPosition.TopRight; });
 
 var app = builder.Build();
+// app.Services.CreateScope().ServiceProvider.GetService<DbContext>().Database.Migrate();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -52,6 +61,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
