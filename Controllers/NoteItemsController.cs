@@ -17,12 +17,10 @@ namespace NotesApp.Controllers
     public class NoteItemsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<IdentityUser>? _userManager;
         private readonly INotyfService _notyf;
-        public NoteItemsController(ApplicationDbContext context, UserManager<IdentityUser>? userManager, INotyfService notyf)
+        public NoteItemsController(ApplicationDbContext context, INotyfService notyf)
         {
             _context = context;
-            _userManager = userManager;
             _notyf = notyf;
         }
 
@@ -56,7 +54,7 @@ namespace NotesApp.Controllers
                 return NotFound();
             }
 
-            if(!(noteItem.UserId.Equals(_userManager.GetUserId(User))))
+            if(!(noteItem.UserId.Equals(HttpContext.Session.Id)))
             {
                 return BadRequest();
             }
@@ -82,7 +80,7 @@ namespace NotesApp.Controllers
         {
             /*if (ModelState.IsValid)
             {*/
-                noteItem.UserId = _userManager.GetUserId(User);
+                noteItem.UserId = Convert.ToString(_context.NoteUser.Where(NoteUser => NoteUser.UserName == User.Identity.Name).First().Id);
                 noteItem.CreatedAt = DateTime.Now;
                 noteItem.UpdatedAt = DateTime.Now;
                 if (Image != null)
@@ -127,7 +125,7 @@ namespace NotesApp.Controllers
                 return NotFound();
             }
 
-            if (!(noteItem.UserId.Equals(_userManager.GetUserId(User))))
+            if (!(noteItem.UserId.Equals(HttpContext.Session.Id)))
             {
                 return BadRequest();
             }
@@ -221,7 +219,7 @@ namespace NotesApp.Controllers
                 return NotFound();
             }
 
-            if (!(noteItem.UserId.Equals(_userManager.GetUserId(User))))
+            if (!(noteItem.UserId.Equals(HttpContext.Session.Id)))
             {
                 return BadRequest();
             }

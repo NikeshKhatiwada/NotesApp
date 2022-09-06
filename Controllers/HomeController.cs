@@ -3,6 +3,7 @@ using Markdig;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NotesApp.Data;
 using NotesApp.Models;
 using PagedList;
@@ -14,14 +15,12 @@ namespace NotesApp.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private ApplicationDbContext? Context { get; }
-        private readonly UserManager<IdentityUser>? _userManager;
         private readonly INotyfService _notyf;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext? applicationDbContext, UserManager<IdentityUser>? userManager, INotyfService notyf)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext? applicationDbContext, INotyfService notyf)
         {
             Context = applicationDbContext;
             _logger = logger;
-            _userManager = userManager;
             _notyf = notyf;
         }
 
@@ -29,8 +28,8 @@ namespace NotesApp.Controllers
         [Authorize]
         public IActionResult Index(int? page)
         {
-            string userId = _userManager.GetUserId(User);
-            List<NoteItem> NoteItems = Context.NoteItem.Where(NoteItem => NoteItem.UserId == userId).ToList();
+            string userId = Convert.ToString(Context.NoteUser.Where(NoteUser => NoteUser.UserName == User.Identity.Name).First().Id);
+            List<NoteItem> NoteItems = Context.NoteItem.Where(NoteItem => Convert.ToString(NoteItem.UserId) == userId).ToList();
             NoteItems = NoteItems.OrderByDescending(NoteItem => NoteItem.CreatedAt).ToList();
             foreach(var noteItem in NoteItems)
             {
@@ -49,8 +48,8 @@ namespace NotesApp.Controllers
         [Authorize]
         public IActionResult Search(string query)
         {
-            string userId = _userManager.GetUserId(User);
-            List<NoteItem> NoteItems = Context.NoteItem.Where(NoteItem => NoteItem.UserId == userId).ToList();
+            string userId = Convert.ToString(Context.NoteUser.Where(NoteUser => NoteUser.UserName == User.Identity.Name).First().Id);
+            List<NoteItem> NoteItems = Context.NoteItem.Where(NoteItem => Convert.ToString(NoteItem.UserId) == userId).ToList();
             NoteItems = NoteItems.Where(NoteItem => NoteItem.Title.ToLower().Contains(query.ToLower()) || NoteItem.Description.ToLower().Contains(query.ToLower())).ToList();
             foreach (var noteItem in NoteItems)
             {

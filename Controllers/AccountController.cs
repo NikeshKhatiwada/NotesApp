@@ -1,22 +1,22 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NotesApp.Data;
 using NotesApp.Models;
 using NotesApp.ViewModels;
+using NuGet.Protocol.Plugins;
+using System.Security.Claims;
 using BC = BCrypt.Net.BCrypt;
 
 namespace NotesApp.Controllers
 {
 	public class AccountController : Controller
 	{
-		private readonly UserManager<NoteUser> userManager;
-		private readonly SignInManager<NoteUser> loginManager;
-        private ApplicationDbContext? Context { get; }
-        public AccountController(UserManager<NoteUser> userManager, SignInManager<NoteUser> loginManager, ApplicationDbContext context)
+		private ApplicationDbContext? Context { get; }
+        public AccountController(ApplicationDbContext context)
 		{
-			this.userManager = userManager;
-			this.loginManager = loginManager;
 			this.Context = context;
 		}
 
@@ -28,41 +28,23 @@ namespace NotesApp.Controllers
 		}
 
 		[HttpPost, AllowAnonymous]
-		public async Task<IActionResult> Register(UserRegistrationModel userRegistrationModel)
+		public IActionResult Register(UserRegistrationModel userRegistrationModel)
 		{
 			if(ModelState.IsValid)
 			{
-				var user1 = await userManager.FindByEmailAsync(userRegistrationModel.Email);
-				if(user1 == null)
+				var user = new NoteUser
 				{
-					var user = new NoteUser
-					{
-						UserName = userRegistrationModel.UserName,
-						Email = userRegistrationModel.Email
-					};
-
-					user.Password = BC.HashPassword(userRegistrationModel.Password);
-                    var result = await userManager.CreateAsync(user);
-					if(result.Succeeded)
-					{
-						return RedirectToAction("Login", "Account");
-					}
-					else
-					{
-						if(result.Errors.Any())
-						{
-							foreach (var Error in result.Errors)
-								ModelState.AddModelError("message", Error.Description);
-						}
-						return View(Request);
-					}
-				}
-				else
-				{
-					ModelState.AddModelError("message", "Email already exists.");
-					return View(Request);
-				}
+					UserName = userRegistrationModel.UserName,
+					Email = userRegistrationModel.Email
+				};
+				user.Password = BC.HashPassword(userRegistrationModel.Password);
+				user.CreatedAt = DateTime.UtcNow;
+				user.UpdatedAt = DateTime.UtcNow;
+				this.Context.NoteUser.Add(user);
+				this.Context.SaveChanges();
+				return Redirect("/");
 			}
+			ModelState.AddModelError("message", "Email already exists.");
 			return View(Request);
 		}
 
@@ -74,30 +56,31 @@ namespace NotesApp.Controllers
 		}
 
 		[HttpPost, AllowAnonymous]
-		public async Task<IActionResult> Login(UserLoginModel userLoginModel)
+		public IActionResult Login(UserLoginModel userLoginModel)
 		{
 			if(ModelState.IsValid)
 			{
-                var user = await userManager.FindByEmailAsync(userLoginModel.Email);
-				/*if (await userManager.CheckPasswordAsync(user, userLoginModel.Password) == false)
-                {
-					ModelState.AddModelError("message", "Invalid input");
-					return View(userLoginModel);
-				}*/
-				bool verified = BC.Verify(userLoginModel.Password, user.Password);
-				/*var result = await loginManager.PasswordSignInAsync(user.UserName, userLoginModel.Password, true, true);
-				if(result.Succeeded)
+				var user = this.Context.NoteUser.Where(NoteUser => NoteUser.Email == userLoginModel.Email).FirstOrDefault();
+				if(user != null)
 				{
-					await userManager.AddClaimAsync(user, new System.Security.Claims.Claim("UserRole", "Admin"));
-					return Redirect("/Home/Index");
-				}*/
-                var result = BC.Verify(userLoginModel.Password, user.Password);
-                if (result)
-				{
-					await loginManager.SignInAsync(user, true);
-					// await userManager.AddClaimAsync(user, new System.Security.Claims.Claim("UserRole", "Admin"));
-					return Redirect("/Home/Index");
-				}
+                    var result = BC.Verify(userLoginModel.Password, user.Password);
+                    if (result)
+					{
+						var claimIdentity = new ClaimsIdentity(new[]
+						{
+							new Claim(ClaimTypes.Name, user.UserName)
+						}, CookieAuthenticationDefaults.AuthenticationScheme);
+						var principal = new ClaimsPrincipal(claimIdentity);
+						HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+						HttpContext.Session.SetString("Username", user.UserName);
+						return Redirect("/");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("message", "Invalid password.");
+                        return View(userLoginModel);
+                    }
+                }
 				else
 				{
 					ModelState.AddModelError("message", "Invalid login attempt.");
@@ -108,9 +91,9 @@ namespace NotesApp.Controllers
 		}
 
 		[HttpPost, Authorize]
-		public async Task<IActionResult> Logout()
+		public IActionResult Logout()
 		{
-			await loginManager.SignOutAsync();
+			HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 			return Redirect("/");
 		}
 	}
