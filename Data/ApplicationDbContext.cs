@@ -13,6 +13,7 @@ namespace NotesApp.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<NoteUser>().HasMany<NoteItem>(ni => ni.NoteItems).WithOne(nu => nu.NoteUser).HasForeignKey("NoteUserId").IsRequired().OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<NoteItem>? NoteItem { get; set; }
