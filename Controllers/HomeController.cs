@@ -1,11 +1,14 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Markdig;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NotesApp.Data;
 using NotesApp.Models;
-using PagedList;
+using Pioneer.Pagination;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 
 namespace NotesApp.Controllers
 {
@@ -13,41 +16,49 @@ namespace NotesApp.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private ApplicationDbContext? Context { get; }
+        private readonly IPaginatedMetaService _paginatedMetaService;
         private readonly INotyfService _notyf;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext? applicationDbContext, INotyfService notyf)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext? applicationDbContext, IPaginatedMetaService paginatedMetaService, INotyfService notyf)
         {
             Context = applicationDbContext;
             _logger = logger;
+            _paginatedMetaService = paginatedMetaService;
             _notyf = notyf;
         }
 
         [HttpGet]
         [Authorize]
-        public IActionResult Index(int? page)
+        public IActionResult Index(int page = 1)
         {
-            string userId = Convert.ToString(Context.NoteUser.Where(NoteUser => NoteUser.UserName == User.Identity.Name).First().Id);
-            List<NoteItem> NoteItems = Context.NoteItem.Where(NoteItem => Convert.ToString(NoteItem.UserId) == userId).ToList();
-            NoteItems = NoteItems.OrderByDescending(NoteItem => NoteItem.CreatedAt).ToList();
-            foreach(var noteItem in NoteItems)
-            {
-                if (noteItem.Title.Length > 16)
-                    noteItem.Title = noteItem.Title.Substring(0, 15);
-                noteItem.Description = Markdown.ToPlainText(noteItem.Description);
-                if (noteItem.Description.Length > 56)
-                    noteItem.Description = noteItem.Description.Substring(0, 55);
-            }
+            NoteUser noteUser = Context.NoteUser.Where(NoteUser => NoteUser.UserName == User.Identity.Name).Include(NoteUser => NoteUser.NoteItems).First();
+            List<NoteItem> NoteItems = new List<NoteItem>();
             int pageSize = 3;
-            int pageNumber = (page ?? 1);
-            return View(NoteItems.ToPagedList(pageNumber, pageSize));
+            int totalItems = 3;
+            if (noteUser.NoteItems != null)
+            {
+                NoteItems = noteUser.NoteItems.ToList();  //Context.NoteItem.Where(NoteItem => Convert.ToString(NoteItem.NoteUser.Id) == userId).ToList();
+                NoteItems = NoteItems.OrderByDescending(NoteItem => NoteItem.CreatedAt).ToList();
+                foreach (var noteItem in NoteItems)
+                {
+                    if (noteItem.Title.Length > 16)
+                        noteItem.Title = noteItem.Title.Substring(0, 15);
+                    noteItem.Description = Markdown.ToPlainText(noteItem.Description);
+                    if (noteItem.Description.Length > 56)
+                        noteItem.Description = noteItem.Description.Substring(0, 55);
+                }
+                totalItems = NoteItems.Count;
+            }
+            ViewBag.PaginatedMeta = _paginatedMetaService.GetMetaData(totalItems, page, pageSize);
+            return View(NoteItems);
         }
 
         [HttpPost]
         [Authorize]
         public IActionResult Search(string query)
         {
-            string userId = Convert.ToString(Context.NoteUser.Where(NoteUser => NoteUser.UserName == User.Identity.Name).First().Id);
-            List<NoteItem> NoteItems = Context.NoteItem.Where(NoteItem => Convert.ToString(NoteItem.UserId) == userId).ToList();
+            NoteUser noteUser = Context.NoteUser.Where(NoteUser => NoteUser.UserName == User.Identity.Name).First();
+            List<NoteItem> NoteItems = noteUser.NoteItems.ToList(); //Context.NoteItem.Where(NoteItem => Convert.ToString(NoteItem.NoteUser.Id) == userId).ToList();
             NoteItems = NoteItems.Where(NoteItem => NoteItem.Title.ToLower().Contains(query.ToLower()) || NoteItem.Description.ToLower().Contains(query.ToLower())).ToList();
             foreach (var noteItem in NoteItems)
             {
