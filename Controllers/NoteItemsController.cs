@@ -54,7 +54,7 @@ namespace NotesApp.Controllers
                 return NotFound();
             }
 
-            if(!(noteItem.UserId.Equals(HttpContext.Session.Id)))
+            if(!(noteItem.NoteUser.Id.Equals(HttpContext.Session.Id)))
             {
                 return BadRequest();
             }
@@ -80,7 +80,7 @@ namespace NotesApp.Controllers
         {
             /*if (ModelState.IsValid)
             {*/
-                noteItem.UserId = Convert.ToString(_context.NoteUser.Where(NoteUser => NoteUser.UserName == User.Identity.Name).First().Id);
+                noteItem.NoteUser.Id = _context.NoteUser.Where(NoteUser => NoteUser.UserName == User.Identity.Name).First().Id;
                 noteItem.CreatedAt = DateTime.Now;
                 noteItem.UpdatedAt = DateTime.Now;
                 if (Image != null)
@@ -125,7 +125,7 @@ namespace NotesApp.Controllers
                 return NotFound();
             }
 
-            if (!(noteItem.UserId.Equals(HttpContext.Session.Id)))
+            if (!(noteItem.NoteUser.Id.Equals(HttpContext.Session.Id)))
             {
                 return BadRequest();
             }
@@ -219,7 +219,7 @@ namespace NotesApp.Controllers
                 return NotFound();
             }
 
-            if (!(noteItem.UserId.Equals(HttpContext.Session.Id)))
+            if (!(noteItem.NoteUser.Id.Equals(HttpContext.Session.Id)))
             {
                 return BadRequest();
             }
