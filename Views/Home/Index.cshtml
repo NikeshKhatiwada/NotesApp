@@ -1,13 +1,10 @@
-﻿@model PagedList.IPagedList<NotesApp.Models.NoteItem>
-@using PagedList;
-@using PagedList.Mvc;
-<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
-
-@{
+﻿@{
     ViewData["Title"] = "Home Page";
 }
+@addTagHelper *, Pioneer.Pagination
 
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+@*<pioneer-pagination info="@ViewBag.PaginatedMeta" route="/blog"></pioneer-pagination>*@
 <div class="page-content container note-has-grid">
     <ul class="nav nav-pills p-3 bg-white mb-3 rounded-pill align-items-center span">
         <li class="nav-item">
@@ -51,6 +48,4 @@
         </div>
     </div>
 </div>
-@*Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-
-@Html.PagedListPager(Model, page => Url.Action("Index", new { page }))*@
+<pioneer-pagination info="@ViewBag.PaginatedMeta" route="" previous-page-text="Previous" next-page-text="Next"></pioneer-pagination>

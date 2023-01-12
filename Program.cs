@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using NotesApp.Data;
 using NotesApp.Models;
+using Pioneer.Pagination;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,8 @@ builder.Services.AddSession(option =>
     option.Cookie.IsEssential = true;
 
 });
+
+builder.Services.AddTransient<IPaginatedMetaService, PaginatedMetaService>();
 
 builder.Services.AddNotyf(config => { config.DurationInSeconds = 10; config.IsDismissable = true; config.Position = NotyfPosition.TopRight; });
 

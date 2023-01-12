@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NotesApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220905102626_Initial")]
+    [Migration("20220906095227_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,9 @@ namespace NotesApp.Migrations
                     b.Property<string>("Image")
                         .HasColumnType("text");
 
+                    b.Property<Guid>("NoteUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -49,11 +52,9 @@ namespace NotesApp.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("NoteUserId");
 
                     b.ToTable("NoteItem");
                 });
@@ -85,6 +86,22 @@ namespace NotesApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("NoteUser");
+                });
+
+            modelBuilder.Entity("NotesApp.Models.NoteItem", b =>
+                {
+                    b.HasOne("NotesApp.Models.NoteUser", "NoteUser")
+                        .WithMany("NoteItems")
+                        .HasForeignKey("NoteUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("NoteUser");
+                });
+
+            modelBuilder.Entity("NotesApp.Models.NoteUser", b =>
+                {
+                    b.Navigation("NoteItems");
                 });
 #pragma warning restore 612, 618
         }
